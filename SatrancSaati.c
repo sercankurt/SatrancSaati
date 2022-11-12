@@ -4,6 +4,8 @@
 // +  = B2
 // -  = B3
 // Bz = A1
+// LCD -> SDA = B5
+// LCD -> SCL = B4
 #include <16F628A.h>
 #fuses INTRC_IO, NOWDT, NOMCLR, NOPROTECT
 #use delay(internal=4M)
@@ -27,7 +29,7 @@ int8 salise  =0, saniye  =0, dakika  =5,
 int1 uzunbuton=0,kisabuton=0,start=0,start2=0;
 
 void geri(){
-//////========== G E R Ý  S A Y I M  F O N K S. ===============================
+//////========== G E R İ  S A Y I M  F O N K S. ===============================
   if(salise==255)         { saniye--; salise=9; }
   else if(saniye==255)    { dakika--; saniye=59; }
   if(salise2==255)        { saniye2--; salise2=9; }
@@ -36,27 +38,79 @@ void geri(){
 
 void ayar(){
 //////========== A Y A R  B U T O N U  F O N K S. =============================
-if (ayr == 1) { lcd_gotoxy(7,2); lcd_putc("<");}
-if (ayr == 1 && input(S_arti)) { dakika++; while(input(S_arti));  }
-if (ayr == 1 && input(S_eksi)) { dakika--; while(input(S_eksi));  }
+if (ayr == 9) { lcd_gotoxy(7,1); arttirma=0; lcd_putc("     "); lcd_gotoxy(7,2); lcd_putc("<");}
+if (ayr == 9 && input(S_arti)) { dakika++; while(input(S_arti));  }
+if (ayr == 9 && input(S_eksi)) { dakika--; while(input(S_eksi));  }
 
-if (ayr == 2) {lcd_gotoxy(6,2); lcd_gotoxy(6,2); lcd_putc("< ");}
-if (ayr == 2 && input(S_arti)) { saniye++; while(input(S_arti));  }
-if (ayr == 2 && input(S_eksi)) { saniye--; while(input(S_eksi));  }
+if (ayr == 10) {lcd_gotoxy(6,2); lcd_gotoxy(6,2); lcd_putc("< ");}
+if (ayr == 10 && input(S_arti)) { saniye++; while(input(S_arti));  }
+if (ayr == 10 && input(S_eksi)) { saniye--; while(input(S_eksi));  }
 
-if (ayr == 3) {lcd_gotoxy(6,2); lcd_putc("  "); lcd_gotoxy(10,2); lcd_putc("> ");}
-if (ayr == 3 && input(S_arti)) { dakika2++; while(input(S_arti));  }
-if (ayr == 3 && input(S_eksi)) { dakika2--; while(input(S_eksi));  }
+if (ayr == 11) {lcd_gotoxy(6,2); lcd_putc("  "); lcd_gotoxy(10,2); lcd_putc("> ");}
+if (ayr == 11 && input(S_arti)) { dakika2++; while(input(S_arti));  }
+if (ayr == 11 && input(S_eksi)) { dakika2--; while(input(S_eksi));  }
 
-if (ayr == 4) {lcd_putc("  "); lcd_gotoxy(10,2); lcd_putc(" >");}
-if (ayr == 4 && input(S_arti)) { saniye2++; while(input(S_arti));  }
-if (ayr == 4 && input(S_eksi)) { saniye2--; while(input(S_eksi));  }
+if (ayr == 12) {lcd_putc("  "); lcd_gotoxy(10,2); lcd_putc(" >");}
+if (ayr == 12 && input(S_arti)) { saniye2++; while(input(S_arti));  }
+if (ayr == 12 && input(S_eksi)) { saniye2--; while(input(S_eksi));  }
 
-if (ayr == 5) {lcd_gotoxy(10,2); lcd_putc("  "); lcd_gotoxy(8,1); printf(lcd_putc,"%02d",arttirma);}
-if (ayr == 5 && input(S_arti)) { arttirma++; while(input(S_arti));  }
-if (ayr == 5 && input(S_eksi)) { arttirma--; while(input(S_eksi));  }
+if (ayr == 13) {lcd_gotoxy(10,2); lcd_putc("  "); lcd_gotoxy(8,1); printf(lcd_putc,"+%d",arttirma);}
+if (ayr == 13 && input(S_arti)) { arttirma++; while(input(S_arti));  }
+if (ayr == 13 && input(S_eksi)) { arttirma--; while(input(S_eksi));  }
 
-if (ayr==6) {lcd_gotoxy(8,1); lcd_putc("  "); ayr=0;}
+switch (ayr) {
+
+case 1: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d ",dakika,arttirma);
+arttirma=0;
+dakika=1; dakika2=1;
+saniye=0; saniye2=0;
+break;
+
+case 2: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=1;
+dakika=2; dakika2=2;
+saniye=0; saniye2=0;
+break;
+
+case 3: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=0;
+dakika=3; dakika2=3;
+saniye=0; saniye2=0; 
+break;
+
+case 4: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=2;
+dakika=3; dakika2=3;
+saniye=0; saniye2=0; 
+break;
+
+case 5: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=0;
+dakika=5; dakika2=5;
+saniye=0; saniye2=0; 
+break;
+
+case 6: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=3;
+dakika=5; dakika2=5;
+saniye=0; saniye2=0; 
+break;
+
+case 7: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=0;
+dakika=10; dakika2=10;
+saniye=0; saniye2=0; 
+break;
+
+
+case 8: lcd_gotoxy(7,1); printf(lcd_putc,"%d+%d",dakika,arttirma);
+arttirma=10;
+dakika=15; dakika2=15;
+saniye=0; saniye2=0; 
+break;}
+
+if (ayr==14) {lcd_gotoxy(8,1); lcd_putc("  "); ayr=0;}
+
 }
 
 void reset(){
@@ -65,13 +119,13 @@ start=0, start2=0,
 saniye=0,dakika=5,
 saniye2=0,dakika2=5,
 arttirma=0,ayr=0;
-lcd_gotoxy(8,1); lcd_putc("  ");
+lcd_gotoxy(7,1); lcd_putc("     ");
 }
 
 void uzunkisa_buton (int inp, int minsure ){
 //////========== U Z U N - K I S A  B U T O N  F O N K S. =====================
-// int1 uzunbuton = 0, kisabuton = 0;   Baþa deðiþken olarak tanýmlanmalý
-// int butonsure = 0; */                Baþa deðiþken olarak tanýmlanmalý        
+// int1 uzunbuton = 0, kisabuton = 0;   Başa değişken olarak tanımlanmalı
+// int butonsure = 0; */                Başa değişken olarak tanımlanmalı        
     if (butonsure >=1 && butonsure<=10 && input(inp)==0 ) {  kisabuton=1; }   // butondan çekildikten sonra
     if (!input(inp)) {butonsure=0;}  
     
@@ -80,19 +134,27 @@ void uzunkisa_buton (int inp, int minsure ){
                        //lcd_gotoxy(8,1); printf(lcd_putc,"%02d",butonsure);  // sadece buton süresini gözlemlemek için  
                        delay_ms(10); }
                        
-//////========== O Y U N A  B A Þ L A M A  F O N K S. =========================
-if (uzunbuton == 1 && dakika >=1 && dakika2>=1 && start==0 && start2==0) {   ayr=0;
-                        lcd_gotoxy(8,1); printf(lcd_putc,"%02d",arttirma); 
+//////========== O Y U N A  B A Ş L A M A  F O N K S. =========================
+if (uzunbuton == 1 && start==0 && start2==0) {   ayr=0;
+                        lcd_gotoxy(7,1); printf(lcd_putc," +%d ",arttirma); 
                         lcd_gotoxy(6,2);  lcd_putc("  "); 
                         lcd_gotoxy(10,2); lcd_putc("  ");
                         start=1;                      
                         output_high(Bz); delay_ms(15); output_low(Bz); butonsure=0; uzunbuton=0; }
 
 //////========== P A U S E  B U T O N =========================================
-if (kisabuton == 1 && start==1) { start=0; pause=1; output_high(Bz); delay_ms(8); output_low(Bz); butonsure=0; kisabuton=0; } 
-if (kisabuton == 1 && start2==1) { start2=0; pause=2; output_high(Bz); delay_ms(8); output_low(Bz); butonsure=0; kisabuton=0; } 
+if (kisabuton == 1 && start==1)  { start=0; pause=1; output_high(Bz); delay_ms(8); output_low(Bz); butonsure=0; kisabuton=0;}
+                                 
+if (kisabuton == 1 && start2==1) { start2=0; pause=2; output_high(Bz); delay_ms(8); output_low(Bz); butonsure=0; kisabuton=0; }
+                                  
 if(kisabuton==1 && pause==1) { start=1; pause=0; output_high(Bz); delay_ms(8); output_low(Bz); butonsure=0; kisabuton=0; }
+                                   
 if(kisabuton==1 && pause==2) { start2=1; pause=0; output_high(Bz); delay_ms(8); output_low(Bz); butonsure=0; kisabuton=0; }
+
+if(pause==1) { lcd_gotoxy(6,2);  lcd_putc("!"); delay_ms(90); 
+               lcd_gotoxy(6,2);  lcd_putc(" "); delay_ms(90); }  
+if(pause==2) { lcd_gotoxy(11,2); lcd_putc("!"); delay_ms(90); 
+               lcd_gotoxy(11,2); lcd_putc(" "); delay_ms(90); }  
 
 //////========== R E S E T  B U T O N =========================================
 if (uzunbuton == 1 && (start==1 || start2==1)) { reset();  output_high(Bz); delay_ms(10); output_low(Bz); butonsure=0; uzunbuton=0; }
@@ -116,7 +178,7 @@ lcd_clear();
 //set_tris_b(0xFF);
 set_tris_a(0xFD);
 
-//////========== I N T R O - A N Ý. ===========================================
+//////========== I N T R O - A N İ. ===========================================
      int s = 5;
      for (int ani=0;ani<17;ani++) { lcd_gotoxy(ani,1); lcd_putc(">>"); delay_ms(s);}
      for ( ani=17;ani>0;ani--) { lcd_gotoxy(ani,2); lcd_putc("<<"); delay_ms(s);}
@@ -131,12 +193,12 @@ set_tris_a(0xFD);
     uzunkisa_buton(Set, 17);
     ayar();
     geri();
-//////========== B E Y A Z - S Ý Y A H  B U T O N =============================
-    if(input(P1) && start==1)  { start=0;  start2=1;
+//////========== B E Y A Z - S İ Y A H  B U T O N =============================
+    if(input(P2) && start==1)  { start=0;  start2=1;
                                      if(saniye+arttirma>=60)  { saniye=saniye+arttirma-60;   dakika++; }  
                                      else { saniye=saniye+arttirma; }                                     
                                      }
-    if(input(P2) && start2==1) { start2=0; start=1;  
+    if(input(P1) && start2==1) { start2=0; start=1;  
                                      if(saniye2+arttirma>=60) { saniye2=saniye2+arttirma-60; dakika2++;}  
                                      else { saniye2=saniye2+arttirma; }                                     
                                      }
@@ -156,9 +218,9 @@ set_tris_a(0xFD);
     if(dakika2==60) dakika2=0;
     if(arttirma==60) arttirma=0;
        
-    if(input(Set)==1 &&  dakika<1)    { dakika=0; while(input(Set));}
-    if(input(Set)==1 &&  dakika2<1)   { dakika2=0; while(input(Set));}
-    if(input(Set)==1 &&  arttirma<1)  { arttirma=0; while(input(Set));}
+    if(input(S_eksi)==1 &&  dakika<1)    { dakika=0; while(input(S_eksi));}
+    if(input(S_eksi)==1 &&  dakika2<1)   { dakika2=0; while(input(S_eksi));}
+    if(input(S_eksi)==1 &&  arttirma==-1)  { arttirma=0; while(input(S_eksi));}
     
     if (start==1  && dakika==0  && saniye==0  && salise==0)    { buzzer(Bz,25); start=0;  dakika=0;  saniye=0;  salise=0;  }
     if (start2==1 && dakika2==0 && saniye2==0 && salise2==0)   { buzzer(Bz,25); start2=0; dakika2=0; saniye2=0; salise2=0; }
