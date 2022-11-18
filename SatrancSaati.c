@@ -1,5 +1,5 @@
 // P1 = A2
-// P2 = A3
+// p2 = A3
 // S  = B1 
 // +  = B2
 // -  = B3
@@ -23,10 +23,11 @@
 #use fast_io(a)
 #use fast_io(b)
 
-int8 salise  =0, saniye  =0, dakika  =5, 
-     salise2 =0, saniye2 =0, dakika2 =5,
-     ayr=0,butonsure=0,arttirma=0,pause=0;
-int1 uzunbuton=0,kisabuton=0,start=0,start2=0,bz_d;
+unsigned int8 salise  =0, saniye  =0, dakika  =0, 
+              salise2 =0, saniye2 =0, dakika2 =0,
+              ayr=0,butonsure=0,arttirma=0,pause=0,
+              SL;
+int1 uzunbuton=0,kisabuton=0,start=0,start2=0,bz_d,TRF;
 
 void buzzer(int in, int s_buzzer, int j_buzzer)
 {
@@ -122,15 +123,20 @@ if (ayr == 12) {lcd_putc("  "); lcd_gotoxy(10,2); lcd_putc(" >");}
 if (ayr == 12 && input(S_arti)) { saniye2++; while(input(S_arti));  }
 if (ayr == 12 && input(S_eksi)) { saniye2--; while(input(S_eksi));  }
 
-if (ayr == 13) {lcd_gotoxy(10,2); lcd_putc("  "); lcd_gotoxy(8,1); printf(lcd_putc,"+%d",arttirma);}
+if (ayr == 13) {lcd_gotoxy(10,2); lcd_putc("  "); lcd_gotoxy(8,1); printf(lcd_putc,"+%d ",arttirma);}
 if (ayr == 13 && input(S_arti)) { arttirma++; while(input(S_arti));  }
 if (ayr == 13 && input(S_eksi)) { arttirma--; while(input(S_eksi));  }
 
-if (ayr == 14) {lcd_gotoxy(7,1); lcd_putc("Bz:"); lcd_gotoxy(10,1); printf(lcd_putc,"%d",bz_d);}
+if (ayr == 14) {lcd_gotoxy(7,1); printf(lcd_putc,"Bz:%d ",bz_d);}
 if (ayr == 14 && input(S_arti)) { bz_d++; write_eeprom(0,bz_d); buzzer(Bz,15,20); while(input(S_arti));  }
 if (ayr == 14 && input(S_eksi)) { bz_d--; write_eeprom(0,bz_d); while(input(S_eksi));  }
 
-if (ayr==15) {lcd_gotoxy(8,1); lcd_putc("  "); ayr=1;}
+if (ayr == 15) {lcd_gotoxy(7,1); printf(lcd_putc,"-s:%02d",SL);}
+if (ayr == 15 && input(S_arti)) { SL++; write_eeprom(1,SL); while(input(S_arti));  }
+if (ayr == 15 && input(S_eksi)) { SL--; write_eeprom(1,SL); while(input(S_eksi));  }
+
+
+if (ayr==16) {lcd_gotoxy(7,1); lcd_putc("     "); ayr=1;}
 
 }
 
@@ -160,7 +166,8 @@ if (uzunbuton == 1 && start==0 && start2==0) {   ayr=0;
                         lcd_gotoxy(7,1); printf(lcd_putc," +%d ",arttirma); 
                         lcd_gotoxy(6,2);  lcd_putc("  "); 
                         lcd_gotoxy(10,2); lcd_putc("  ");
-                        start=1;                      
+                        if (TRF==0) start=1;
+                        if (TRF==1) start2=1;
                         kisa_buzzer(400); butonsure=0; uzunbuton=0; }
 
 //////========== P A U S E  B U T O N =========================================
@@ -185,11 +192,11 @@ if (kisabuton == 1 && start==0 && start2==0)
 }
 
 void main() {
-
 lcd_init(0x4e,16,2);
 lcd_clear();
 set_tris_a(0xFD);
-bz_d = read_eeprom(0); 
+bz_d = read_eeprom(0);
+SL   = read_eeprom(1);
 output_low(pin_a1);
 //////========== I N T R O - A N İ. ===========================================
      int s = 5;
@@ -207,8 +214,8 @@ output_low(pin_a1);
     ayar();
     geri();
 //////========== B E Y A Z - S İ Y A H  T A R A F  B E L İ R L E M E ==========    
-    if(input(P2) && start==0 && start2==0 && pause==0) {lcd_gotoxy(1,1); lcd_putc("SIYAH");  lcd_gotoxy(12,1); lcd_putc("BEYAZ"); }
-    if(input(P1) && start==0 && start2==0 && pause==0) {lcd_gotoxy(1,1); lcd_putc("BEYAZ");  lcd_gotoxy(12,1); lcd_putc("SIYAH"); }  
+    if(input(P2) && start==0 && start2==0 && pause==0) {TRF=1; lcd_gotoxy(1,1); lcd_putc("SIYAH"); lcd_gotoxy(12,1); lcd_putc("BEYAZ"); delay_ms(10); }
+    if(input(P1) && start==0 && start2==0 && pause==0) {TRF=0; lcd_gotoxy(1,1); lcd_putc("BEYAZ"); lcd_gotoxy(12,1); lcd_putc("SIYAH"); delay_ms(10); }  
 //////========== B E Y A Z - S İ Y A H  B U T O N =============================
     if(input(P2) && start==1)  { start=0;  start2=1;
                                      if(saniye+arttirma>=60)  { saniye=saniye+arttirma-60;   dakika++; }  
@@ -221,22 +228,24 @@ output_low(pin_a1);
     if (start==1)  { salise--; delay_ms(75);  }
     if (start2==1) { salise2--; delay_ms(75); }
 //////========== L C D ======================================================== 
-          lcd_gotoxy(1,2); printf(lcd_putc,"%02d:%02d",dakika,saniye);
-          lcd_gotoxy(12,2); printf(lcd_putc,"%02d:%02d",dakika2,saniye2);
-/* if (dakika==0 && saniye<10  && start==1 )  {lcd_gotoxy(1,1);  lcd_putc("B=   "); lcd_gotoxy(1,1);  printf(lcd_putc,"%02d",salise);  }
-   if (dakika2==0 && saniye2<10 && start2==1)  {lcd_gotoxy(12,1); lcd_putc("S=   "); lcd_gotoxy(15,1); printf(lcd_putc,"%02d",salise2); }  */ 
-   
+     lcd_gotoxy(1,2);  printf(lcd_putc,"%02d:%02d",dakika,saniye);
+     lcd_gotoxy(12,2); printf(lcd_putc,"%02d:%02d",dakika2,saniye2);
+//LCD=== s a l i s e ===LCD//
+     if( (start==1  || start2==1) && dakika==0  && saniye<SL)  {lcd_gotoxy(1,2);  printf(lcd_putc,"%02d:0%d ",saniye,salise);  }
+     if( (start2==1 || start==1)  && dakika2==0 && saniye2<SL) {lcd_gotoxy(12,2); printf(lcd_putc,"%02d:0%d",saniye2,salise2); }
 //////========== S I N I R L A N D I R M A L A R ============================== 
     if(saniye==60)   saniye=0;
     if(dakika==60)   dakika=0; 
     if(saniye2==60)  saniye2=0;
     if(dakika2==60)  dakika2=0;
     if(arttirma==60) arttirma=0;
-       
-    if(input(S_eksi)==1 &&  dakika<1)    { dakika=0; while(input(S_eksi));}
-    if(input(S_eksi)==1 &&  dakika2<1)   { dakika2=0; while(input(S_eksi));}
-    if(input(S_eksi)==1 &&  arttirma==-1)  { arttirma=0; while(input(S_eksi));}
+    if(SL==60)       SL=0;  
     
+    if(input(S_eksi)==1 &&  dakika<1)     { dakika=0;   while(input(S_eksi)); }
+    if(input(S_eksi)==1 &&  dakika2<1)    { dakika2=0;  while(input(S_eksi)); }
+    if(input(S_eksi)==1 &&  arttirma==-1) { arttirma=0; while(input(S_eksi)); }
+    if(input(S_eksi)==1 &&  SL==-1)       { SL=0;       while(input(S_eksi)); }
+     
     if (start==1  && dakika==0  && saniye==0  && salise==0)    { buzzer(Bz,25,250); start=0;  dakika=0;  saniye=0;  salise=0;  }
     if (start2==1 && dakika2==0 && saniye2==0 && salise2==0)   { buzzer(Bz,25,250); start2=0; dakika2=0; saniye2=0; salise2=0; }
    }
